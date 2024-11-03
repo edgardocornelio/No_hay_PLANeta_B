@@ -19,6 +19,8 @@ from models.convnet_model import load_model
 from streamlit_func import show_sidebar, config_page
 from PIL import Image, ImageDraw, ImageFont
 import seaborn as sns
+import cv2
+
 
 # Constantes #
 DAY_HOUR_FORMAT = """%d/%m/%y\n%H:%M"""
@@ -26,6 +28,7 @@ DAY_FORMAT = "%d/%m/%y"
 COLOR_BLUE = '#213f99'
 CATEGORIES = ['cardboard', 'compost', 'glass', 'metal', 'paper', 'plastic', 'trash']
 THRESHOLD = 98
+TARGET_SIZE = (254, 254)  # Tamaño objetivo
 
 def display_image_with_label(img_array: np.ndarray, pred_index: int, conf: float):
     
@@ -229,28 +232,33 @@ def main() -> None:
     ################
     ## TAB Cargar ##
     ################
+    
     with tab_cargar_imagen:
-        st.write('''Carga tu imagen con la basura a clasificar. 
-                        ''', unsafe_allow_html=True)
-        
-        imagen_bruta = st.file_uploader('Sube tu imagen', type=["png","tif","jpg","bmp","jpeg"], on_change=reset_predictions)
-        # Si hay imagen cargada, convertimos en array la imagen y realizamos las validaciones de la imagen
+        st.write('''Carga tu imagen con la basura a clasificar.''', unsafe_allow_html=True)
+
+        imagen_bruta = st.file_uploader('Sube tu imagen', type=["png", "tif", "jpg", "bmp", "jpeg"], on_change=reset_predictions)
+
         if imagen_bruta is not None:
-            # Utilizamos el wrapper BytesIO para cargar bytes en la calse Image de PIL
-            # Transformamos la imagen en array de numpy
-            img_array = np.array(Image.open(BytesIO(imagen_bruta.read())))
-            # Realizamos validaciones sobre la imagen
-            valid_img, error_msg = is_valid_image(img_array)
-            # Si la imagen no es válida mostramos mensaje de error y paramos la ejecución de la app
-            # Forzamos al usuario a cargar una nueva imagen válida
-            if not valid_img:
-                st.error(error_msg)
-                #st.stop() # Lo que viene después del stop no se ejecutará.
+            # Leer y convertir la imagen
+            img = Image.open(BytesIO(imagen_bruta.read()))
+
+            # Convertir la imagen a RGB si no tiene 3 canales
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
+        
+            # Redimensionar la imagen a (224, 224)
+            img = img.resize((224, 224))
+
+            # Convertir la imagen a array numpy
+            img_array = np.array(img)
+
+            # Validar si la imagen tiene el formato esperado
+            if img_array.shape != (224, 224, 3):
+                st.error("No se pudo redimensionar la imagen a (224, 224, 3)")
             else:
-                # Si la imagen es válida guardamos en sesión el nombre del archivo y mostramos un mensaje de éxito
                 st.session_state['imagen_cargada_y_validada'] = imagen_bruta.name
-                # Este mensaje solo se mostrará si hay una imagen cargada y si la imagen está validada
-                st.success('Imagen cargada correctamente.')
+                st.success("Imagen cargada y redimensionada correctamente a (224, 224, 3)")
+
 
     ################
     ## TAB Imagen ##

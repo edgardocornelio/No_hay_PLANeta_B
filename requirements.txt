@@ -4,5 +4,5 @@ numpy
 pandas
 Pillow
 matplotlib
+opencv-python-headless
 seaborn
-opencv-python

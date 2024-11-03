@@ -27,12 +27,12 @@ DAY_HOUR_FORMAT = """%d/%m/%y\n%H:%M"""
 DAY_FORMAT = "%d/%m/%y"
 COLOR_BLUE = '#213f99'
 CATEGORIES = ['cardboard', 'compost', 'glass', 'metal', 'paper', 'plastic', 'trash']
-THRESHOLD = 98
+THRESHOLD = 0.97
 TARGET_SIZE = (254, 254)  # Tamaño objetivo
 
 def display_image_with_label(img_array: np.ndarray, pred_index: int, conf: float):
     
-    THRESHOLD = 0.98
+    THRESHOLD = 0.97
     
     if img_array is not None and img_array.size > 0:
         # Convertimos el array a una imagen PIL
@@ -218,7 +218,7 @@ def main() -> None:
                 Sube una imagen con residuo a clasificar.<br>
                 Pulsa sobre la solapa "**predecir**" y comprueba si el modelo ha sido
                 capaz de clasificar correctamente la imagen.
-                Si el accuracy supera el 98% muestra la clasifición.''', unsafe_allow_html=True)
+                Si el accuracy supera el 97% muestra la clasifición.''', unsafe_allow_html=True)
     
     # Inicializamos variables de sesión para llevar un registro de las predicciones
     if st.session_state.get('historial') is None:

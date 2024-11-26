@@ -27,12 +27,12 @@ DAY_HOUR_FORMAT = """%d/%m/%y\n%H:%M"""
 DAY_FORMAT = "%d/%m/%y"
 COLOR_BLUE = '#213f99'
 CATEGORIES = ['cardboard', 'compost', 'glass', 'metal', 'paper', 'plastic', 'trash']
-THRESHOLD = 0.97
+THRESHOLD = 0.75
 TARGET_SIZE = (254, 254)  # Tamaño objetivo
 
 def display_image_with_label(img_array: np.ndarray, pred_index: int, conf: float):
     
-    THRESHOLD = 0.97
+    THRESHOLD = 0.75
     
     if img_array is not None and img_array.size > 0:
         # Convertimos el array a una imagen PIL
@@ -45,22 +45,33 @@ def display_image_with_label(img_array: np.ndarray, pred_index: int, conf: float
         
         if conf < THRESHOLD:
             label_text = f"No se puede clasificar la imagen ({conf:.2%})"
+            text_color = "black"
+            background_color = "green"
+            
         else:
             pred_category = CATEGORIES[pred_index]
             label_text = f"{pred_category} ({conf:.2%})"
+            if pred_category == "trash":
+                text_color = "yellow"
+                background_color = "red"
+            else:
+                text_color = "white"
+                background_color = "black"
         
-        text_position = (10, 10)  # Posición del texto en la imagen
-        text_color = "white"
-        background_color = "black"  # Color de fondo para el texto
+        text_position = (70, 10)  # Posición del texto en la imagen
+        
+        
+        #background_color = "red"  # Color de fondo para el texto
+        
         
         # Calcular el tamaño del rectángulo de fondo en función del texto
         #text_size = draw.textsize(label_text, font=font)
         text_bbox = draw.textbbox(text_position, label_text, font=font)  # Obtiene la caja de texto
         background_position = (
-            text_bbox[0] - 5,
-            text_bbox[1] - 5,
-            text_bbox[2] + 5,
-            text_bbox[3] + 5
+            text_bbox[0] - 82,
+            text_bbox[1] - 82,
+            text_bbox[2] + 150,
+            text_bbox[3] + 12
         )
         
         # Dibujar el fondo antes de escribir el texto
@@ -70,6 +81,15 @@ def display_image_with_label(img_array: np.ndarray, pred_index: int, conf: float
     
         # Mostrar la imagen en Streamlit
         st.image(img, caption="Predicción del modelo con categoría", use_column_width=True)
+        
+        #html_code = f"""
+        #<div style="background-color: red; padding: 10px; text-align: center; border-radius: 10px;">
+        #<img src="data:image/jpeg;base64,{st.image(img, use_column_width=True)}" style="max-width: 100%;">
+        #<p>Predicción del modelo con categoría</p>
+        #</div>
+        #"""
+        # Renderizar HTML en Streamlit
+        #st.markdown(html_code, unsafe_allow_html=True)
     else:
         st.error("Cargue una imagen.")
     
@@ -211,14 +231,17 @@ def main() -> None:
     show_sidebar()
     # Título y descripción de la app
     st.write(''' Grupo 6 -  Botta Lucarella Magistocchi Cornelio''')
-    st.title('Clasificación de Residuos')
-    st.subheader('Una App para mostrar y probar un Modelo de Aprendizaje')
-    st.write('''Con esta app podras evaluar un modelo convolucional entrenado 
-                con el dataset [waste-classifier](https://huggingface.co/datasets/rootstrap-org/waste-classifier).<br>
-                Sube una imagen con residuo a clasificar.<br>
-                Pulsa sobre la solapa "**predecir**" y comprueba si el modelo ha sido
-                capaz de clasificar correctamente la imagen.
-                Si el accuracy supera el 97% muestra la clasifición.''', unsafe_allow_html=True)
+    st.title('Dale una nueva vida a tus residuos')
+    st.subheader('Descubre cómo nuestra IA clasifica diferentes tipos de residuos')
+    st.write('''
+             
+    <p>Con esta app, podrás probar un modelo de aprendizaje basado en redes neuronales convolucionales entrenado con el data set <strong>waste-classifier</strong>.</p>
+    <ol>
+        <li>Sube una imagen del residuo que quieras clasificar.</li>
+        <li>Haz clic en la pestaña <em>“Predecir”</em> para ver los resultados.</li>
+    </ol>
+    <p>Si el modelo alcanza una similitud superior al 75%, te mostrará la clasificación del residuo.</p>
+             ''', unsafe_allow_html=True)
     
     # Inicializamos variables de sesión para llevar un registro de las predicciones
     if st.session_state.get('historial') is None:
@@ -227,8 +250,8 @@ def main() -> None:
     st.session_state['imagen_cargada_y_validada'] = False
     # Definimos las 5 tabs que tendrá nuestra app
     tab_cargar_imagen, tab_ver_imagen, tab_predecir, \
-        tab_evaluar, tab_estadisticas = st.tabs(['Cargar imagen', 'Ver imagen', 
-                                        'Predecir', 'Evaluar', 'Ver estadísticas'])
+        tab_evaluar, tab_estadisticas = st.tabs(['Cargar imagen', 'Mostrar imagen', 
+                                        'Predicción', 'Evaluación', 'Mostrar estadísticas'])
     ################
     ## TAB Cargar ##
     ################
@@ -341,17 +364,20 @@ def main() -> None:
         # Verificamos si hay una predicción lanzada y guardada en sesión
         if (last_pred:=st.session_state.get('ultima_prediccion')) is not None:
             # Posibilidad de contrastar con la realidad para almacenar porcentaje de aciertos
-            st.subheader('¿ Ha acertado el modelo ?')
+            st.subheader('¿El modelo acertó?')
             # Selección de categoría de residuos
-            category = st.selectbox('Selecciona la categoría de residuos que deseas clasificar', CATEGORIES)
-            #digit = st.number_input('Marca el dígito que habías dibujado', min_value=0, max_value=9)
+            st.write('''  <p>En caso de que no, ayúdanos a mejorar seleccionando la respuesta correcta</p>
+             ''', unsafe_allow_html=True)
+            #category = st.selectbox('Instrucción: Elige la categoría de residuos que corresponde a la imagen que subiste', CATEGORIES)
+            category = st.selectbox('Instrucción: Elige la categoría de residuos que corresponde a la imagen que subiste', CATEGORIES, index=CATEGORIES.index(CATEGORIES[pred_index]))
+            
             guardar_pred = st.button('Guardar evaluación', help='Añade la evaluación al historial')
             # Si se pulsa el botón
             if guardar_pred:
                 # Comprobamos que no hayamos guardado ya en sesión para no falsear las estadísticas
                 if not pred_already_saved(last_pred['archivo']):
                     # Añadimos a ultima_prediccion la evaluación del usuario
-                    # last_pred['real'] = digit
+                    
                     last_pred['real'] = CATEGORIES.index(category)
                     # Añadimos la hora
                     last_pred['fecha'] = get_timestamp(DAY_HOUR_FORMAT)

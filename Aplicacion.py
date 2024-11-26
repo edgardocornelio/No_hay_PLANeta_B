@@ -27,12 +27,12 @@ DAY_HOUR_FORMAT = """%d/%m/%y\n%H:%M"""
 DAY_FORMAT = "%d/%m/%y"
 COLOR_BLUE = '#213f99'
 CATEGORIES = ['cardboard', 'compost', 'glass', 'metal', 'paper', 'plastic', 'trash']
-THRESHOLD = 0.75
+THRESHOLD = 0.70
 TARGET_SIZE = (254, 254)  # Tamaño objetivo
 
 def display_image_with_label(img_array: np.ndarray, pred_index: int, conf: float):
     
-    THRESHOLD = 0.75
+    THRESHOLD = 0.70
     
     if img_array is not None and img_array.size > 0:
         # Convertimos el array a una imagen PIL
@@ -240,7 +240,7 @@ def main() -> None:
         <li>Sube una imagen del residuo que quieras clasificar.</li>
         <li>Haz clic en la pestaña <em>“Predecir”</em> para ver los resultados.</li>
     </ol>
-    <p>Si el modelo alcanza una similitud superior al 75%, te mostrará la clasificación del residuo.</p>
+    <p>Si el modelo alcanza una similitud superior al 70%, te mostrará la clasificación del residuo.</p>
              ''', unsafe_allow_html=True)
     
     # Inicializamos variables de sesión para llevar un registro de las predicciones

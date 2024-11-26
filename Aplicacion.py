@@ -232,7 +232,16 @@ def main() -> None:
     # Título y descripción de la app
     st.write(''' Grupo 6 -  Botta Lucarella Magistocchi Cornelio''')
     st.title('Dale una nueva vida a tus residuos')
-    st.subheader('Descubre cómo nuestra IA clasifica diferentes tipos de residuos')
+    
+    st.markdown(
+    """
+    <h2 style='font-size:24px;'>
+        Descubre cómo nuestra IA clasifica diferentes tipos de residuos
+    </h2>
+    """,
+    unsafe_allow_html=True
+    )
+    #st.subheader('Descubre cómo nuestra IA clasifica diferentes tipos de residuos')
     st.write('''
              
     <p>Con esta app, podrás probar un modelo de aprendizaje basado en redes neuronales convolucionales entrenado con el data set <strong>waste-classifier</strong>.</p>

@@ -44,7 +44,7 @@ def display_image_with_label(img_array: np.ndarray, pred_index: int, conf: float
         pred_category = CATEGORIES[pred_index]
         
         if conf < THRESHOLD:
-            label_text = f"No se puede clasificar la imagen ({conf:.2%})"
+            label_text = f"No puede clasificar la imagen ({conf:.2%})"
             text_color = "black"
             background_color = "green"
             
@@ -58,7 +58,7 @@ def display_image_with_label(img_array: np.ndarray, pred_index: int, conf: float
                 text_color = "white"
                 background_color = "black"
         
-        text_position = (70, 10)  # Posición del texto en la imagen
+        text_position = (60, 10)  # Posición del texto en la imagen
         
         
         #background_color = "red"  # Color de fondo para el texto
